@@ -1,21 +1,32 @@
-# Oripa Ranking Manager
+﻿# Oripa Ranking Manager
 
-## 構成
-データ管理（`oripa-ranking.php`）をテーマから分離した独自プラグインです。サービス共通情報は `oripa_service`、LPごとの順位・上書きは `ranking_lp` のメタデータに保存します。テーマ変更後もデータは保持されます。
+WordPress 6.x / PHP 8.2+ 対応のオンラインオリパ比較ランキング用プラグイン＋テーマです。
 
-## 導入
-1. `oripa-ranking` フォルダを `wp-content/plugins/` にアップロードし有効化。
-2. 「オリパサービス」を登録し、サービスID（編集画面URLの post=番号）をLPの「掲載サービスID（順位順）」へカンマ区切りで入力。
-3. 「ランキングLP」を追加。本文は不要で、公開すると自動テンプレート表示されます。ショートコード `[oripa_ranking_lp id="123"]` も利用可能。
+## インストール
 
-## 更新・広告URL
-サービス編集画面で共通情報・各媒体URLを変更すると全LPへ反映。LPの「流入媒体」を設定、またはURLに `?traffic=meta` 等を付けるとCTAリンクを切替。
+1. oripa-ranking を wp-content/plugins/ へ配置。
+2. oripa-ranking-theme を wp-content/themes/ へ配置。
+3. 管理画面でプラグインとテーマを有効化。
+4. パーマリンク設定を一度保存。
+5. 有効化時にサンプル5サービスとサンプルLPが作成されます。
 
-## サンプル
-有効化時にサンプルLPを1件作成します。5サービスのダミー投稿は管理画面から追加してください（名称例: オリパワン、日本トレカセンター、ドーパ、エクストレカ、オリくじ）。
+## 順位変更
 
-## 計測
-全CTAクリックで `dataLayer` に `affiliate_click` を送信します。GTMでこのイベントをトリガーに設定してください。
+ランキングLP編集画面の「掲載サービスID（順位順・カンマ区切り）」へ、サービス投稿IDを順位順に入力します。例: 101,102,103,104,105。順位はTOP3、カード、比較表、構造化データへ反映されます。
 
-## 設計比較
-独自メタボックスは追加費用がなく移行性が高い一方、リピーターUIは簡素です。ACF ProはUIとリピーター、柔軟なフィールド管理に優れますがライセンス依存があります。本実装は依存を避けた独自メタボックス方式を採用し、必要に応じてACFへ移行できるキー設計です。
+## LP別上書き
+
+「LP別上書き(JSON)」に {"101":{"catch":"ポケカのラインナップが豊富","cta":"ポケカを確認する","overall":"4.8"}} の形式で入力します。未入力項目はサービス共通情報を使用します。
+
+## 広告URLと計測
+
+URLに ?traffic=google / yahoo / meta / adnetwork / asp / seo を付けて媒体別URLを切り替えます。全CTAクリックで affiliate_click、lp_id、service_id、rank、cta_position、traffic_source、click_datetime を dataLayer に送信します。GTMで affiliate_click をカスタムイベントに設定してください。
+
+## FAQ・SEO
+
+LPメタに faq_json を保存するとFAQ構造化データを出力します。例: [{"question":"初心者でも利用できますか？","answer":"利用規約をご確認ください。"}]。noindexメタ値を1にすると noindex,follow を出力します。根拠のないReview/AggregateRatingは出力しません。
+
+## ACF Proとの比較
+
+独自メタボックス方式は追加ライセンス不要でデータをプラグインに保持できます。ACF ProはリピーターUIに優れますがライセンス依存があります。現構成は移行しやすいメタキーを採用しています。
+

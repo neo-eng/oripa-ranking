@@ -28,3 +28,21 @@ add_action('wp_head',function(){if(!is_singular('ranking_lp'))return;$id=get_the
 register_activation_hook(__FILE__,function(){flush_rewrite_rules();$names=['オリパワン','日本トレカセンター','ドーパ','エクストレカ','オリくじ'];$ids=[];foreach($names as $n){$found=get_posts(['post_type'=>'oripa_service','title'=>$n,'post_status'=>'any','numberposts'=>1,'fields'=>'ids']);$sid=$found[0]??wp_insert_post(['post_type'=>'oripa_service','post_status'=>'publish','post_title'=>$n]);$ids[]=$sid;foreach(['official_url'=>'https://example.com/','asp_url'=>'https://example.com/asp','seo_url'=>'https://example.com/seo','cta'=>'公式サイトを見る','description'=>$n.'のダミーサービス説明です。','catch'=>'初心者にも選びやすいサービス','overall'=>'4.5','beginner'=>'4.5','lineup'=>'4.0','campaign'=>'4.0','usability'=>'4.2','shipping'=>'4.0','support'=>'4.0','first_bonus'=>'初回限定キャンペーン'] as $k=>$v)update_post_meta($sid,$k,$v);}if(!get_page_by_path('online-oripa-ranking','ranking_lp')){$lp=wp_insert_post(['post_type'=>'ranking_lp','post_status'=>'publish','post_title'=>'オンラインオリパおすすめランキング']);update_post_meta($lp,'ranking_services',implode(',',$ids));update_post_meta($lp,'h1','オンラインオリパおすすめランキング');update_post_meta($lp,'ad_notice','本ページには広告が含まれます。');update_post_meta($lp,'method','公式情報・使いやすさ・ラインナップ・キャンペーン・発送・サポートを総合比較しています。');}});
 register_deactivation_hook(__FILE__,fn()=>flush_rewrite_rules());
 
+
+/* Extended SEO and FAQ schema */
+add_action('wp_head',function(){
+ if(!is_singular('ranking_lp')) return;
+ $id=get_the_ID();
+ $robots=oripa_meta($id,'noindex')==='1'?'noindex,follow':'index,follow';
+ echo '<meta name="robots" content="'.esc_attr($robots).'">';
+ $graph=['@context'=>'https://schema.org','@graph'=>[
+  ['@type'=>'WebPage','@id'=>get_permalink($id),'url'=>get_permalink($id),'name'=>oripa_meta($id,'seo_title',get_the_title($id)),'description'=>oripa_meta($id,'meta_description'),'dateModified'=>get_the_modified_date('c',$id)],
+  ['@type'=>'BreadcrumbList','itemListElement'=>[['@type'=>'ListItem','position'=>1,'name'=>'ホーム','item'=>home_url('/')],['@type'=>'ListItem','position'=>2,'name'=>get_the_title($id),'item'=>get_permalink($id)]]]
+ ]];
+ $faq=json_decode(oripa_meta($id,'faq_json','[]'),true);
+ if(is_array($faq)&&$faq){$entities=[];foreach($faq as $row){if(!empty($row['question'])&&!empty($row['answer']))$entities[]=['@type'=>'Question','name'=>sanitize_text_field($row['question']),'acceptedAnswer'=>['@type'=>'Answer','text'=>wp_kses_post($row['answer'])]];}if($entities)$graph['@graph'][]=['@type'=>'FAQPage','mainEntity'=>$entities];}
+ echo '<script type="application/ld+json">'.wp_json_encode($graph,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES).'</script>';
+});
+add_filter('manage_ranking_lp_posts_columns',function($cols){$cols['oripa_rankings']='掲載サービス';return $cols;});
+add_action('manage_ranking_lp_posts_custom_column',function($col,$id){if($col==='oripa_rankings')echo esc_html(count(oripa_services($id)).'件');},10,2);
+
