@@ -3,3 +3,4 @@ Theme Name: Oripa Ranking LP
 Version: 1.0.0
 */
 body{margin:0;background:#f8fafc}.site-header,.site-footer{padding:16px;max-width:1080px;margin:auto}.site-footer{font-size:14px}
+ .oripa-page{max-width:900px;margin:2rem auto;padding:1rem;background:#fff;border-radius:12px;line-height:1.9}.oripa-page h1{font-size:clamp(1.5rem,4vw,2.2rem);border-bottom:2px solid #1769aa;padding-bottom:.5rem}

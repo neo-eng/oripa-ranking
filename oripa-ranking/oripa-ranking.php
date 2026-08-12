@@ -46,3 +46,14 @@ add_action('wp_head',function(){
 add_filter('manage_ranking_lp_posts_columns',function($cols){$cols['oripa_rankings']='掲載サービス';return $cols;});
 add_action('manage_ranking_lp_posts_custom_column',function($col,$id){if($col==='oripa_rankings')echo esc_html(count(oripa_services($id)).'件');},10,2);
 
+register_activation_hook(__FILE__,function(){
+ $pages=[
+  ['operator-info','運営者情報','運営者情報を記載してください。'],
+  ['privacy-policy','プライバシーポリシー','当サイトのプライバシーポリシーです。'],
+  ['advertising-policy','広告掲載ポリシー','当サイトの広告掲載ポリシーです。'],
+  ['ranking-method','ランキング調査方法','サービス内容、使いやすさ、商品ラインナップ、キャンペーン、初心者の利用しやすさ、発送対応、サポート体制、情報の分かりやすさを総合的に比較しています。'],
+  ['contact','お問い合わせ','お問い合わせは管理者までご連絡ください。'],
+  ['disclaimer','免責事項','掲載情報は最新性を保証するものではありません。利用前に各サービスの公式情報をご確認ください。']
+ ];
+ foreach($pages as $page){if(!get_page_by_path($page[0]))wp_insert_post(['post_type'=>'page','post_status'=>'publish','post_name'=>$page[0],'post_title'=>$page[1],'post_content'=>$page[2]]);}
+});
