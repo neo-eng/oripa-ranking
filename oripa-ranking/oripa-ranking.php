@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Plugin Name: Oripa Ranking Manager
  * Description: Online Oripa ranking data manager.
